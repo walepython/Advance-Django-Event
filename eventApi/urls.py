@@ -10,7 +10,7 @@ from .views import (
 )
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from myevent2.eventApi import views
+from . import views
 
 urlpatterns = [
      # --- Event Endpoints ---
@@ -68,4 +68,5 @@ urlpatterns = [
     path('debug-admin/', debug_admin),
     path('check-migrations/', views.check_migrations, name='check-migrations'),
     path('run-migrations/', views.run_migrations, name='run-migrations'),
+   
 ]

@@ -31,12 +31,7 @@ from io import BytesIO
 import logging
 from django.db import connection
 
-# class IsOrganizerOrReadOnly(permissions.BasePermission):
 
-#     def has_permission(self, request, view):
-#         if request.method in permissions.SAFE_METHODS:
-#             return True
-#         return request.user.is_authenticated and request.user.role in ['organizer', 'admin']
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
