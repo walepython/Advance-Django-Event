@@ -1,6 +1,6 @@
 
 from django.urls import path
-from .views import CertificateListAPIView, DashboardRegistrationsAPIView, EventDetailAPIView, EventFeedbackListAPIView, EventListCreateAPIView, EventRegisterAPIView, EventWithMediaDetailAPIView, EventWithMediaListAPIView, FeedBack,  UserListAPIView, UserProfileAPIView, UsersRetrieveUpdateDeleteView,EventListCreateAPIView2, EventRegistrationStatusAPIView,ScanRegistrationAPIView,EventRegistrationsAPIView, debug_create_event,export_event_registrations,AdminRegistrationsAPIView,CheckInAPIView,VenueListAPIView,cancel_registration, load_initial_data
+from .views import CertificateListAPIView, DashboardRegistrationsAPIView, EventDetailAPIView, EventFeedbackListAPIView, EventListCreateAPIView, EventRegisterAPIView, EventWithMediaDetailAPIView, EventWithMediaListAPIView, FeedBack,  UserListAPIView, UserProfileAPIView, UsersRetrieveUpdateDeleteView,EventListCreateAPIView2, EventRegistrationStatusAPIView,ScanRegistrationAPIView,EventRegistrationsAPIView, debug_admin, debug_create_event,export_event_registrations,AdminRegistrationsAPIView,CheckInAPIView,VenueListAPIView,cancel_registration, load_initial_data
 from .views import (
     ContactMessageCreateView,
     ContactMessageListView,
@@ -10,8 +10,11 @@ from .views import (
 )
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+from myevent2.eventApi import views
+
 urlpatterns = [
      # --- Event Endpoints ---
+    path('', views.api_root, name='api-root'),
     path('eventApi/', EventListCreateAPIView.as_view(), name='event-list'),
     path('eventApi2/', EventListCreateAPIView2.as_view(), name='event-list2'),
 
@@ -39,27 +42,30 @@ urlpatterns = [
     path("my-certificates/", CertificateListAPIView.as_view(), name="my-certificates"),
     path("user/", UserProfileAPIView.as_view(), name="user-profile"),
 
-   path("registration/scan/<uuid:public_id>/", ScanRegistrationAPIView.as_view(), name="scan-registration"),
-   
-   path("events/<int:event_id>/registrations/", EventRegistrationsAPIView.as_view()),
-   path('venues/', VenueListAPIView.as_view(), name='venue-list'),
-
-   path("events/<int:event_id>/export/",export_event_registrations,
-   name="export_event_registrations"),
-
-   path("admin/registrations/", AdminRegistrationsAPIView.as_view()),
-
-   # In urls.py
-   path("checkin/<uuid:public_id>/", CheckInAPIView.as_view(), name="checkin-ticket"),
-
-   path('contact/', ContactMessageCreateView.as_view(), name='contact-create'),
+    path("registration/scan/<uuid:public_id>/", ScanRegistrationAPIView.as_view(), name="scan-registration"),
     
-    # Admin Contact Management
-  path('admin/contacts/', ContactMessageListView.as_view(), name='admin-contacts-list'),
-  path('admin/contacts/<int:pk>/', ContactMessageDetailView.as_view(), name='admin-contact-detail'),
-  path('admin/contacts/<int:pk>/reply/', mark_as_replied, name='mark-as-replied'),
-  path('admin/contacts/stats/', contact_stats, name='contact-stats'),
+    path("events/<int:event_id>/registrations/", EventRegistrationsAPIView.as_view()),
+    path('venues/', VenueListAPIView.as_view(), name='venue-list'),
 
-  path('api/debug-events/', debug_create_event),
-  path('api/load-data/',load_initial_data, name='load-data'),
+    path("events/<int:event_id>/export/",export_event_registrations,
+    name="export_event_registrations"),
+
+    path("admin/registrations/", AdminRegistrationsAPIView.as_view()),
+
+    # In urls.py
+    path("checkin/<uuid:public_id>/", CheckInAPIView.as_view(), name="checkin-ticket"),
+
+    path('contact/', ContactMessageCreateView.as_view(), name='contact-create'),
+      
+    # Admin Contact Management
+    path('admin/contacts/', ContactMessageListView.as_view(), name='admin-contacts-list'),
+    path('admin/contacts/<int:pk>/', ContactMessageDetailView.as_view(), name='admin-contact-detail'),
+    path('admin/contacts/<int:pk>/reply/', mark_as_replied, name='mark-as-replied'),
+    path('admin/contacts/stats/', contact_stats, name='contact-stats'),
+
+    path('debug-events/', debug_create_event),
+    path('load-data/',load_initial_data, name='load-data'),
+    path('debug-admin/', debug_admin),
+    path('check-migrations/', views.check_migrations, name='check-migrations'),
+    path('run-migrations/', views.run_migrations, name='run-migrations'),
 ]

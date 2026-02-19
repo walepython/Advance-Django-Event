@@ -19,7 +19,7 @@ from django.core.management import call_command
 from rest_framework.permissions import IsAuthenticated, IsAdminUser,AllowAny
 
 from .permissions import IsOrganizerOrAdmin
-
+from django.contrib.auth import get_user_model
 import json
 import os
 from rest_framework import status
@@ -29,6 +29,7 @@ import qrcode.image.svg
 from django.core.files.base import ContentFile
 from io import BytesIO
 import logging
+from django.db import connection
 
 # class IsOrganizerOrReadOnly(permissions.BasePermission):
 
@@ -918,4 +919,79 @@ def load_initial_data(request):
         'status': 'ready',
         'event_count': Event.objects.count(),
         'endpoint': 'Send POST request to load data'
+    })
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def debug_admin(request):
+    User = get_user_model()
+    
+    if request.method == 'POST':
+        # Create admin if it doesn't exist
+        if not User.objects.filter(is_superuser=True).exists():
+            User.objects.create_superuser(
+                username='admin',
+                email='admin@example.com',
+                password='admin123'  # Change this!
+            )
+            return Response({'message': 'Admin user created'})
+        return Response({'message': 'Admin already exists'})
+    
+    # GET: Show database info
+    return Response({
+        'database': connection.vendor,
+        'tables_exist': User.objects.exists(),
+        'admin_exists': User.objects.filter(is_superuser=True).exists(),
+        'user_count': User.objects.count()
+    })
+
+
+from django.core.management import call_command
+from io import StringIO
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def check_migrations(request):
+    try:
+        # Check if migrations are applied
+        from django.db.migrations.executor import MigrationExecutor
+        executor = MigrationExecutor(connection)
+        plan = executor.migration_plan(executor.loader.graph.leaf_nodes())
+        
+        return Response({
+            'pending_migrations': len(plan),
+            'migrations_applied': len(plan) == 0,
+            'database': connection.vendor
+        })
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def run_migrations(request):
+    try:
+        # Capture output
+        out = StringIO()
+        call_command('migrate', stdout=out)
+        return Response({
+            'message': 'Migrations completed',
+            'output': out.getvalue()
+        })
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+    
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def api_root(request):
+    """API root with available endpoints"""
+    return Response({
+        'message': 'Event API',
+        'endpoints': {
+            'events': '/api/events/',
+            'admin': '/admin/',
+            'load_data': '/api/load-data/',
+            'debug_admin': '/api/debug-admin/',
+            'check_migrations': '/api/check-migrations/',
+            'run_migrations': '/api/run-migrations/'
+        }
     })
