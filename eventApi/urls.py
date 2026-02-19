@@ -1,6 +1,6 @@
 
 from django.urls import path
-from .views import CertificateListAPIView, DashboardRegistrationsAPIView, EventDetailAPIView, EventFeedbackListAPIView, EventListCreateAPIView, EventRegisterAPIView, EventWithMediaDetailAPIView, EventWithMediaListAPIView, FeedBack,  UserListAPIView, UserProfileAPIView, UsersRetrieveUpdateDeleteView,EventListCreateAPIView2, EventRegistrationStatusAPIView,ScanRegistrationAPIView,EventRegistrationsAPIView,export_event_registrations,AdminRegistrationsAPIView,CheckInAPIView,VenueListAPIView,cancel_registration
+from .views import CertificateListAPIView, DashboardRegistrationsAPIView, EventDetailAPIView, EventFeedbackListAPIView, EventListCreateAPIView, EventRegisterAPIView, EventWithMediaDetailAPIView, EventWithMediaListAPIView, FeedBack,  UserListAPIView, UserProfileAPIView, UsersRetrieveUpdateDeleteView,EventListCreateAPIView2, EventRegistrationStatusAPIView,ScanRegistrationAPIView,EventRegistrationsAPIView, debug_create_event,export_event_registrations,AdminRegistrationsAPIView,CheckInAPIView,VenueListAPIView,cancel_registration, load_initial_data
 from .views import (
     ContactMessageCreateView,
     ContactMessageListView,
@@ -59,4 +59,7 @@ urlpatterns = [
   path('admin/contacts/<int:pk>/', ContactMessageDetailView.as_view(), name='admin-contact-detail'),
   path('admin/contacts/<int:pk>/reply/', mark_as_replied, name='mark-as-replied'),
   path('admin/contacts/stats/', contact_stats, name='contact-stats'),
+
+  path('api/debug-events/', debug_create_event),
+  path('api/load-data/',load_initial_data, name='load-data'),
 ]

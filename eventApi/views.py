@@ -6,7 +6,7 @@ from rest_framework import generics,permissions, status
 from .models import Event,User,Registration,Attendance,Feedback,Certificate,MediaGallery,EventSeating,EventWaitlist,CalendarSync,EventShareLog,Venue,ContactMessage
 from .serializers import CustomTokenObtainPairSerializer, EventSerializer,EventCreateUpdateSerializer, RegisterSerializer, RegistrationSerializer, UserListSerializer,UserPublicSerializer,AttendanceSerializer,FeedbackSerializer,CertificateSerializer,MediaGallerySerializer,EventSeatingSerializer,EventWaitlistSerializer,CalendarSyncSerializer,EventShareLogSerializer,RegistrationScanSerializer,AdminRegistrationSerializer,VenueListSerializer,ContactMessageSerializer, ContactMessageAdminSerializer
 
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 import csv
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import PermissionDenied
@@ -14,10 +14,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.views.decorators.csrf import csrf_exempt
+from django.core.management import call_command
 from rest_framework.permissions import IsAuthenticated, IsAdminUser,AllowAny
 
 from .permissions import IsOrganizerOrAdmin
 
+import json
+import os
 from rest_framework import status
 import traceback
 import qrcode
@@ -855,3 +859,63 @@ def contact_stats(request):
         'by_subject': subject_counts
     })
 
+
+@api_view(['POST', 'GET'])
+@permission_classes([AllowAny])
+def debug_create_event(request):
+    if request.method == 'POST':
+        # Create a sample event
+        event = Event.objects.create(
+            title=request.data.get('title', 'Sample Event'),
+            description=request.data.get('description', 'Test Description'),
+            date=request.data.get('date', '2024-12-31'),
+            # Add other fields your model requires
+        )
+        return Response({'message': 'Event created', 'id': event.id})
+    
+    # GET request - show all events
+    events = Event.objects.all()
+    serializer = EventSerializer(events, many=True)
+    return Response(serializer.data)
+
+@api_view(['POST', 'GET'])
+@permission_classes([AllowAny])
+def load_initial_data(request):
+    """
+    Endpoint to load initial data from fixture
+    POST: Load the data
+    GET: Check if data exists
+    """
+    if request.method == 'POST':
+        try:
+            # Check if events already exist
+            from eventApi.models import Event
+            if Event.objects.count() > 0:
+                return JsonResponse({
+                    'status': 'warning',
+                    'message': f'Database already has {Event.objects.count()} events. No data loaded.'
+                })
+            
+            # Load the fixture data
+            call_command('loaddata', 'data.json')
+            
+            # Verify loading
+            event_count = Event.objects.count()
+            return JsonResponse({
+                'status': 'success',
+                'message': f'Successfully loaded data',
+                'events_loaded': event_count
+            })
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=500)
+    
+    # GET request - show status
+    from eventApi.models import Event
+    return JsonResponse({
+        'status': 'ready',
+        'event_count': Event.objects.count(),
+        'endpoint': 'Send POST request to load data'
+    })
