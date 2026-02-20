@@ -1,6 +1,6 @@
 
 from django.urls import path
-from .views import CertificateListAPIView, DashboardRegistrationsAPIView, EventDetailAPIView, EventFeedbackListAPIView, EventListCreateAPIView, EventRegisterAPIView, EventWithMediaDetailAPIView, EventWithMediaListAPIView, FeedBack,  UserListAPIView, UserProfileAPIView, UsersRetrieveUpdateDeleteView,EventListCreateAPIView2, EventRegistrationStatusAPIView,ScanRegistrationAPIView,EventRegistrationsAPIView, debug_admin, debug_create_event,export_event_registrations,AdminRegistrationsAPIView,CheckInAPIView,VenueListAPIView,cancel_registration, load_initial_data
+from .views import CertificateListAPIView, DashboardRegistrationsAPIView, EventDetailAPIView, EventFeedbackListAPIView, EventListCreateAPIView, EventRegisterAPIView, EventWithMediaDetailAPIView, EventWithMediaListAPIView, FeedBack,  UserListAPIView, UserProfileAPIView, UsersRetrieveUpdateDeleteView,EventListCreateAPIView2, EventRegistrationStatusAPIView,ScanRegistrationAPIView,EventRegistrationsAPIView, debug_admin, debug_create_event, debug_media_files,export_event_registrations,AdminRegistrationsAPIView,CheckInAPIView,VenueListAPIView,cancel_registration, load_initial_data
 from .views import (
     ContactMessageCreateView,
     ContactMessageListView,
@@ -68,5 +68,5 @@ urlpatterns = [
     path('debug-admin/', debug_admin),
     path('check-migrations/', views.check_migrations, name='check-migrations'),
     path('run-migrations/', views.run_migrations, name='run-migrations'),
-   
+    path('debug-media/', debug_media_files),
 ]

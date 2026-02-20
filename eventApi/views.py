@@ -1,4 +1,5 @@
 
+from django.conf import settings
 from django.utils import timezone
 from datetime import datetime
 from django.shortcuts import get_object_or_404, redirect
@@ -989,4 +990,39 @@ def api_root(request):
             'check_migrations': '/api/check-migrations/',
             'run_migrations': '/api/run-migrations/'
         }
+    })
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def debug_media_files(request):
+    """List all media files on the server"""
+    media_root = settings.MEDIA_ROOT
+    media_url = settings.MEDIA_URL
+    
+    # Check if directory exists
+    if not os.path.exists(media_root):
+        return Response({
+            'error': 'Media directory does not exist',
+            'media_root': media_root
+        })
+    
+    # Walk through media directory
+    files = []
+    for root, dirs, filenames in os.walk(media_root):
+        for file in filenames:
+            full_path = os.path.join(root, file)
+            relative_path = os.path.relpath(full_path, media_root)
+            files.append({
+                'path': relative_path,
+                'size': os.path.getsize(full_path),
+                'url': media_url + relative_path.replace('\\', '/')
+            })
+    
+    return Response({
+        'media_root': media_root,
+        'media_url': media_url,
+        'directory_exists': True,
+        'file_count': len(files),
+        'files': files[:20],  # First 20 files
+        'full_image_url': settings.MEDIA_URL + 'event_images/naming-image_C0hWRnw.jpg'
     })
