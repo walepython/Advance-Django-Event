@@ -82,7 +82,11 @@ class EventFeedbackListAPIView(generics.ListAPIView):
 class EventListCreateAPIView2(generics.ListCreateAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
-    permission_classes = [permissions.AllowAny]
+    #permission_classes = [permissions.AllowAny]
+    def get_permissions(self):
+        if self.request.method == "POST":
+            return [IsAuthenticated()]
+        return [AllowAny()]
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -95,8 +99,12 @@ class EventListCreateAPIView2(generics.ListCreateAPIView):
 class EventListCreateAPIView(generics.ListCreateAPIView):
     queryset = Event.objects.all().order_by('date')
     serializer_class = EventSerializer
-    # permission_classes = [IsOrganizerOrReadOnly]
-    permission_classes = [permissions.AllowAny]
+    # permission_classes = [permissions.AllowAny]
+
+    def get_permissions(self):
+        if self.request.method == "POST":
+            return [IsAuthenticated()]
+        return [AllowAny()]
 
     def list(self, request, *args, **kwargs):
         now = timezone.localtime()
