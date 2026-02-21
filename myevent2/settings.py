@@ -135,16 +135,15 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# MEDIA_URL = '/media/'
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-# if not DEBUG:
-#     # This is crucial - Django won't serve media files when DEBUG=False
-#     # You need to configure your web server or use cloud storage
+if not DEBUG:
+    # This is crucial - Django won't serve media files when DEBUG=False
+    # You need to configure your web server or use cloud storage
     
-#     # Option 1: If using Whitenoise (for static files only, NOT media)
-#     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    # Option 1: If using Whitenoise (for static files only, NOT media)
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
     
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
