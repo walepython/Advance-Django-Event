@@ -3,7 +3,8 @@ from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-
+from eventApi.views import serve_media
+import re
 from eventApi.views import MyTokenObtainPairView, RegisterView
 
 
@@ -22,5 +23,9 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name="token_refresh"),
 ]
 
-if settings.DEBUG:
+if not settings.DEBUG:
+    urlpatterns += [
+        path('media/<path:path>', serve_media, name='serve_media')
+    ]
+else:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

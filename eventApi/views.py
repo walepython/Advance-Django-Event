@@ -31,6 +31,10 @@ from django.core.files.base import ContentFile
 from io import BytesIO
 import logging
 from django.db import connection
+from django.views.static import serve
+from django.http import Http404
+import os
+from django.conf import settings
 
 
 
@@ -1034,3 +1038,19 @@ def debug_media_files(request):
         'files': files[:20],  # First 20 files
         'full_image_url': settings.MEDIA_URL + 'event_images/naming-image_C0hWRnw.jpg'
     })
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def serve_media(request, path):
+    """
+    Custom view to serve media files in production
+    """
+    media_path = os.path.join(settings.MEDIA_ROOT, path)
+    
+    # Security check
+    if not os.path.normpath(media_path).startswith(settings.MEDIA_ROOT):
+        raise Http404("File not found")
+    
+    if os.path.exists(media_path) and os.path.isfile(media_path):
+        return serve(request, path, document_root=settings.MEDIA_ROOT)
+    raise Http404("File not found")
