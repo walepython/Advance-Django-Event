@@ -1,4 +1,5 @@
 from django.contrib import admin
+#from django.http import HttpResponseRedirect
 from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
@@ -10,6 +11,7 @@ from eventApi.views import MyTokenObtainPairView, RegisterView
 
 
 urlpatterns = [
+    #path('', lambda request: HttpResponseRedirect('/admin/')),  # Redirect root to admin
     path('admin/', admin.site.urls),
 
     # App routes
