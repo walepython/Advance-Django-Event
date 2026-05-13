@@ -933,24 +933,34 @@ def load_initial_data(request):
 @permission_classes([AllowAny])
 def debug_admin(request):
     User = get_user_model()
-    
+
     if request.method == 'POST':
-        # Create admin if it doesn't exist
-        if not User.objects.filter(is_superuser=True).exists():
-            User.objects.create_superuser(
-                username='admin',
-                email='admin@example.com',
-                password='admin123'  # Change this!
-            )
-            return Response({'message': 'Admin user created'})
-        return Response({'message': 'Admin already exists'})
-    
-    # GET: Show database info
+
+        username = "admin"
+        password = "admin123"
+
+        user, created = User.objects.get_or_create(
+            username=username,
+            defaults={
+                "email": "admin@example.com"
+            }
+        )
+
+        user.is_staff = True
+        user.is_superuser = True
+        user.is_active = True
+        user.set_password(password)
+        user.save()
+
+        return Response({
+            'message': 'Admin fixed successfully',
+            'created': created
+        })
+
     return Response({
         'database': connection.vendor,
-        'tables_exist': User.objects.exists(),
         'admin_exists': User.objects.filter(is_superuser=True).exists(),
-        'user_count': User.objects.count()
+        'users': list(User.objects.values('username', 'is_staff', 'is_superuser'))
     })
 
 
